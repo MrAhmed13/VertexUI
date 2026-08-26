@@ -9,17 +9,7 @@
 	Vertex UI Library — v2.0.0
 	--------------------------
 	A polished, heavily animated UI library for Roblox executors.
-
-	  * 100% native Roblox Instances — zero external dependencies
-	  * Lucide icon set built in (268 curated icons, extendable)
-	  * Layered soft shadows, accent glow, subtle gradients
-	  * Ripples, hover lifts, spring easing, staggered reveals,
-	    cross-faded tab pages, animated popups
-	  * Live theming (every element recolors instantly) + 9 presets
-	  * Config save / load, built-in settings tab, tooltips,
-	    draggable + resizable window, FPS/ping watermark
-
-	See README.md for the full API.
+	See README.md for the full Guide (WIP)
 ]]
 
 local Library = {}
@@ -2136,6 +2126,67 @@ function Library:CreateWindow(opts)
 		end)
 	end
 
+	-- // Bottom drag handle (so you can always grab and move the window)
+	local dragHandle = New("TextButton", {
+		Name = "DragHandle",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -6),   -- 6px above bottom edge
+		Size = UDim2.new(0, 60, 0, 8),
+		BackgroundColor3 = Library.Scheme.Element,
+		BackgroundTransparency = 0.8,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 50,
+		Parent = Main,
+	})
+	Corner(Library.Radius.Small, dragHandle)
+	Library:Register(dragHandle, "BackgroundColor3", "Element")
+
+	-- A thin accent line inside the handle
+	local handleLine = New("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.new(0.8, 0, 0, 2),
+		BackgroundColor3 = Library.Scheme.OutlineLight,
+		BorderSizePixel = 0,
+		ZIndex = 51,
+		Parent = dragHandle,
+	})
+	Corner(Library.Radius.Tiny, handleLine)
+	Library:Register(handleLine, "BackgroundColor3", "OutlineLight")
+
+	-- Make it draggable (reuses the same shadow lift/drop as the topbar)
+	MakeDraggable(dragHandle, Wrapper, function()
+		local layers = shadowLayers
+		for i, layer in ipairs(layers) do
+			TweenRaw(layer, Anim.Smooth, {
+				Size = UDim2.new(1, i * 9, 1, i * 9),
+				Position = UDim2.new(0.5, 0, 0.5, i * 2),
+			})
+		end
+		TweenRaw(glow, Anim.Smooth, { BackgroundTransparency = 0.86 })
+	end, function()
+		local layers = shadowLayers
+		for i, layer in ipairs(layers) do
+			TweenRaw(layer, Anim.Smooth, {
+				Size = UDim2.new(1, i * 6, 1, i * 6),
+				Position = UDim2.new(0.5, 0, 0.5, i),
+			})
+		end
+		TweenRaw(glow, Anim.Smooth, { BackgroundTransparency = 0.93 })
+	end)
+
+	-- Hover effects
+	Connect(dragHandle.MouseEnter, function()
+		Tween(dragHandle, Anim.Fast, { BackgroundTransparency = 0.4 })
+		TweenRaw(handleLine, Anim.Fast, { BackgroundColor3 = Library.Scheme.Accent })
+	end)
+	Connect(dragHandle.MouseLeave, function()
+		Tween(dragHandle, Anim.Fast, { BackgroundTransparency = 0.8 })
+		TweenRaw(handleLine, Anim.Fast, { BackgroundColor3 = Library.Scheme.OutlineLight })
+	end)
+	Library:AttachTooltip(dragHandle, "Drag window")
+
 	function Window:SetMinimized(state)
 		if state == Window.Minimized then
 			return
@@ -2150,12 +2201,14 @@ function Library:CreateWindow(opts)
 			if minIcon:IsA("ImageLabel") then
 				minIcon.Image = Library:GetIcon("plus") or minIcon.Image
 			end
+			dragHandle.Visible = false   -- hide the drag handle
 		else
 			Tween(Wrapper, Anim.SoftSpring, { Size = Window.FullSize })
 			TweenRaw(Sidebar, Anim.Smooth, { BackgroundTransparency = 0.35 })
 			if minIcon:IsA("ImageLabel") then
 				minIcon.Image = Library:GetIcon("minus") or minIcon.Image
 			end
+			dragHandle.Visible = true    -- show it again
 		end
 	end
 
@@ -5537,4 +5590,3 @@ Library.SetToggleKey = function(_, key)
 end
 
 return Library
-
