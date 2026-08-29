@@ -6,7 +6,7 @@
 	 ╚████╔╝ ███████╗██║  ██║   ██║   ███████╗██╔╝ ██╗
 	  ╚═══╝  ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 
-	Vertex UI Library — v2.0.0
+	Vertex UI Library — v1.0.0
 	--------------------------
 	A polished, heavily animated UI library for Roblox executors.
 	See README.md for the full Guide (WIP)
@@ -14,7 +14,7 @@
 
 local Library = {}
 
-Library.Version = "2.0.0"
+Library.Version = "1.0.0"
 Library.Unloaded = false
 Library.Toggled = true
 
@@ -93,7 +93,7 @@ Library.Scheme = {
 
 Library.Font = Enum.Font.GothamMedium
 Library.FontBold = Enum.Font.GothamBold
-Library.FontRegular = Enum.Font.Gotham
+Library.FontRegular = Enum.Font.GothamMedium
 
 Library.ToggleKey = Enum.KeyCode.RightControl
 
@@ -1808,7 +1808,7 @@ function Library:CreateWindow(opts)
 
 	-- Hairline under the topbar, brightest in the middle.
 	local topLine = New("Frame", {
-		Size = UDim2.new(1, 0, 0, 1),
+		Size = UDim2.new(1, -8, 0, 1),
 		Position = UDim2.new(0, 0, 1, -1),
 		BackgroundColor3 = Library.Scheme.OutlineLight,
 		BorderSizePixel = 0,
@@ -1898,7 +1898,7 @@ function Library:CreateWindow(opts)
 	local subLabel = New("TextLabel", {
 		Size = UDim2.new(1, 0, 0, 13),
 		BackgroundTransparency = 1,
-		Font = Library.Font,
+		Font = Library.FontBold,
 		Text = subtitle,
 		TextColor3 = Library.Scheme.SubText,
 		TextSize = 11,
@@ -2066,7 +2066,7 @@ function Library:CreateWindow(opts)
 		Position = UDim2.new(0, 12, 1, -9),
 		Size = UDim2.new(1, -24, 0, 12),
 		BackgroundTransparency = 1,
-		Font = Library.Font,
+		Font = Library.FontBold,
 		Text = "Vertex v" .. Library.Version,
 		TextColor3 = Library.Scheme.Placeholder,
 		TextSize = 10,
@@ -2309,9 +2309,9 @@ function Library:CreateWindow(opts)
 				Position = UDim2.new(xScale, xOffset, 0, 0),
 				BackgroundTransparency = 1,
 				BorderSizePixel = 0,
-				ScrollBarThickness = 3,
-				ScrollBarImageColor3 = Library.Scheme.Accent,
-				ScrollBarImageTransparency = 0.4,
+				ScrollBarThickness = 2,
+                ScrollBarImageColor3 = Library.Scheme.Accent,
+                ScrollBarImageTransparency = 0.65,
 				CanvasSize = UDim2.new(0, 0, 0, 0),
 				AutomaticCanvasSize = Enum.AutomaticSize.Y,
 				ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -2529,7 +2529,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 	Library:Register(frame, "BackgroundColor3", "Surface")
 	Gradient(frame, Color3.fromRGB(255, 255, 255), Color3.fromRGB(235, 235, 243), 90)
 	local cardScale = Scale(frame, 1)
-	local cardStroke = Stroke(frame, Library.Scheme.Outline, 1, 0)
+	local cardStroke = Stroke(frame, Library.Scheme.Outline, 1, 0.45)
 	Library:Register(cardStroke, "Color", "Outline")
 
 	if owningTab then
@@ -2545,18 +2545,33 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		BackgroundTransparency = 1,
 		Parent = frame,
 	})
-
+local hairline = New("Frame", {
+    Position = UDim2.new(0, 12, 0, 37),
+    Size = UDim2.new(1, -24, 0, 1),
+    BackgroundColor3 = Library.Scheme.Outline,
+    BorderSizePixel = 0,
+    Parent = frame,
+})
+Library:Register(hairline, "BackgroundColor3", "Outline")
+New("UIGradient", {
+    Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.9),
+        NumberSequenceKeypoint.new(0.5, 0.25),
+        NumberSequenceKeypoint.new(1, 0.9),
+    }),
+    Parent = hairline,
+})
 	local headerX = 13
 	if iconName then
 		local hIcon = Library:CreateIcon(header, iconName, 15, "Accent")
 		hIcon.AnchorPoint = Vector2.new(0, 0.5)
-		hIcon.Position = UDim2.new(0, 13, 0.5, 2)
+		hIcon.Position = UDim2.new(0, 13, 0.5, 0)
 		headerX = 35
 	else
 		-- No icon: a small accent dot keeps the header from looking bare.
 		local dot = New("Frame", {
 			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 13, 0.5, 2),
+			Position = UDim2.new(0, 13, 0.5, 0),
 			Size = UDim2.fromOffset(6, 6),
 			BackgroundColor3 = Library.Scheme.Accent,
 			BorderSizePixel = 0,
@@ -2569,7 +2584,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 
 	local headerLabel = New("TextLabel", {
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, headerX, 0.5, 2),
+		Position = UDim2.new(0, headerX, 0.5, 0),
 		Size = UDim2.new(1, -headerX - 36, 0, 16),
 		BackgroundTransparency = 1,
 		Font = Library.FontBold,
@@ -2604,7 +2619,13 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		Parent = clipper,
 	})
 	List(container, Library.Metrics.RowGap)
-	New("UIPadding", { PaddingBottom = UDim.new(0, 13), Parent = container })
+	New("UIPadding", {
+    PaddingTop = UDim.new(0, 2),
+    PaddingRight = UDim.new(0, 4),
+    PaddingBottom = UDim.new(0, 13),
+    PaddingLeft = UDim.new(0, 4),
+    Parent = container,
+})
 
 	local collapsed = false
 	local contentHeight = 0
@@ -2619,7 +2640,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 
 	local chevron = Library:CreateIcon(header, "chevron-down", 15, "Placeholder")
 	chevron.AnchorPoint = Vector2.new(1, 0.5)
-	chevron.Position = UDim2.new(1, -13, 0.5, 2)
+	chevron.Position = UDim2.new(1, -13, 0.5, 0)
 
 	local headerBtn = New("TextButton", {
 		Size = UDim2.new(1, 0, 1, 0),
@@ -2714,7 +2735,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 			Position = UDim2.new(0, textX, 0, 0),
 			Size = UDim2.new(1, -textX, 0, 16),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(text or ""),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 12,
@@ -2839,7 +2860,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		Corner(Library.Radius.Element, btn)
 		Library:Register(btn, "BackgroundColor3", "Element")
 		local btnScale = Scale(btn, 1)
-		local btnStroke = Stroke(btn, Library.Scheme.Outline, 1, 0)
+		local btnStroke = Stroke(btn, Library.Scheme.Outline, 1, 0.5)
 		Library:Register(btnStroke, "Color", "Outline")
 
 		-- Accent wash that fades in behind the label on hover.
@@ -2879,7 +2900,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 			Size = UDim2.new(0, 0, 1, 0),
 			AutomaticSize = Enum.AutomaticSize.X,
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(text),
 			TextColor3 = Library.Scheme.Text,
 			TextSize = 13,
@@ -2902,7 +2923,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		Connect(btn.MouseLeave, function()
 			Tween(btn, Anim.Fast, { BackgroundColor3 = Library.Scheme.Element })
 			TweenRaw(wash, Anim.Fast, { BackgroundTransparency = 1 })
-			TweenRaw(btnStroke, Anim.Fast, { Color = Library.Scheme.Outline, Transparency = 0 })
+			TweenRaw(btnStroke, Anim.Fast, { Color = Library.Scheme.Outline, Transparency = 0.5 })
 		end)
 		Connect(btn.MouseButton1Down, function()
 			TweenRaw(btnScale, Anim.Snap, { Scale = 0.975 })
@@ -2977,9 +2998,9 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 			labelKey = "Danger"
 		end
 		local label = New("TextLabel", {
-			Size = UDim2.new(1, -60, 1, 0),
-			BackgroundTransparency = 1,
-			Font = Library.Font,
+		    Size = UDim2.new(1, -60, 1, 0),
+		    BackgroundTransparency = 1,
+		    Font = Library.FontBold,
 			Text = tostring(text),
 			TextColor3 = Library.Scheme[labelKey],
 			TextSize = 13,
@@ -2991,9 +3012,9 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		Library:AttachTooltip(click, opts.Tooltip)
 
 		-- Right-aligned strip: attached pickers sit left of the switch.
-		local rightHolder = New("Frame", {
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, 0, 0.5, 0),
+        local rightHolder = New("Frame", {
+            AnchorPoint = Vector2.new(1, 0.5),
+            Position = UDim2.new(1, -2, 0.5, 0),
 			Size = UDim2.new(0, 0, 1, 0),
 			AutomaticSize = Enum.AutomaticSize.X,
 			BackgroundTransparency = 1,
@@ -3019,7 +3040,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local ring = New("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
-			Size = UDim2.new(1, 8, 1, 8),
+			Size = UDim2.new(1, 6, 1, 6),
 			BackgroundColor3 = Library.Scheme.Accent,
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
@@ -3198,7 +3219,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local label = New("TextLabel", {
 			Size = UDim2.new(1, -90, 0, 15),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(text),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 13,
@@ -3425,7 +3446,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local label = New("TextLabel", {
 			Size = UDim2.new(1, 0, 0, 14),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(text),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 12,
@@ -3584,7 +3605,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local label = New("TextLabel", {
 			Size = UDim2.new(1, 0, 0, 14),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(text),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 12,
@@ -3611,7 +3632,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 			Position = UDim2.new(0, 10, 0, 0),
 			Size = UDim2.new(1, -34, 1, 0),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = "...",
 			TextColor3 = Library.Scheme.Text,
 			TextSize = 12,
@@ -3918,7 +3939,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 			-- row to reveal it. `expand` clips the panel, so it unfolds cleanly.
 			local h = popupHeight()
 			panel.Size = UDim2.new(1, 0, 0, h)
-			Tween(row, Anim.Smooth, { Size = UDim2.new(1, 0, 0, rowBase + GAP + h) })
+			Tween(row, Anim.Smooth, { Size = UDim2.new(1, 0, 0, rowBase + GAP + h + 4) })
 			TweenRaw(chevron, Anim.Smooth, { Rotation = 180 })
 			Tween(btnStroke, Anim.Fast, { Color = Library.Scheme.Accent, Transparency = 0.25 })
 
@@ -3958,7 +3979,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 				local h = popupHeight()
 				panel.Size = UDim2.new(1, 0, 0, h)
 				if isOpen then
-					Tween(row, Anim.Fast, { Size = UDim2.new(1, 0, 0, rowBase + GAP + h) })
+					Tween(row, Anim.Smooth, { Size = UDim2.new(1, 0, 0, rowBase + GAP + h + 4) })
 				end
 			end)
 		end
@@ -4034,7 +4055,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local label = New("TextLabel", {
 			Size = UDim2.new(1, -40, 1, 0),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(opts.Text or flag),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 13,
@@ -4056,7 +4077,7 @@ function Library:_CreateGroupbox(column, title, iconName, owningTab)
 		local label = New("TextLabel", {
 			Size = UDim2.new(1, -70, 1, 0),
 			BackgroundTransparency = 1,
-			Font = Library.Font,
+			Font = Library.FontBold,
 			Text = tostring(opts.Text or flag),
 			TextColor3 = Library.Scheme.SubText,
 			TextSize = 13,
@@ -5548,7 +5569,7 @@ function Library:AddSettingsTab(window, tabName)
 		Wrap = true,
 		Icon = "sparkles",
 	})
-	about:AddLabel({ Text = "Configs live in " .. Library.ConfigFolder .. "/", Wrap = true })
+	about:AddLabel({ Text = "Configs live in " .. Library.ConfigFolder .. "/", Wrap = true, Icon = "settings" })
 
 	return tab
 end
